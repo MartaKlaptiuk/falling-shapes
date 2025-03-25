@@ -14,8 +14,10 @@
       }
 
       .container {
-        width: 600px;
-        height: 400px;
+        width: 80vw;
+        height: 50vh;
+        max-width: 800px;
+        max-height: 400px;
         border: 4px solid black;
         margin: 20px auto;
         background: white;
@@ -197,29 +199,36 @@
           this.shapes = [];
           this.isDeleting = false;
 
-          this.app = new PIXI.Application({
-            width: 600,
-            height: 400,
-            backgroundColor: 0xffffff
-          });
-          document.getElementById("canvas").appendChild(this.app.view);
+          this.container = document.getElementById("canvas");
+          this.resizeCanvas();
 
-          this.mask = new PIXI.Graphics();
-          this.mask.beginFill(0xffffff);
-          this.mask.drawRect(
-            0,
-            0,
-            this.app.renderer.width,
-            this.app.renderer.height
-          );
-          this.mask.endFill();
-
-          this.app.stage.addChild(this.mask);
-
+          window.addEventListener("resize", () => this.resizeCanvas());
           this.app.ticker.add(this.animate.bind(this));
           this.updateShapeInterval();
         }
 
+        resizeCanvas() {
+          const { width, height } = this.container.getBoundingClientRect();
+
+          if (this.app) {
+            this.app.renderer.resize(width, height);
+          } else {
+            this.app = new PIXI.Application({
+              width: width,
+              height: height,
+              backgroundColor: 0xffffff,
+            });
+            this.container.appendChild(this.app.view);
+          }
+
+          // Update mask
+          if (this.mask) this.mask.destroy();
+          this.mask = new PIXI.Graphics();
+          this.mask.beginFill(0xffffff);
+          this.mask.drawRect(0, 0, width, height);
+          this.mask.endFill();
+          this.app.stage.addChild(this.mask);
+        }
         createShape(x, y) {
           const types = [
             "triangle",
@@ -236,10 +245,6 @@
           x = Math.max(
             size / 2,
             Math.min(this.app.renderer.width - size / 2, x)
-          );
-          y = Math.max(
-            size / 2,
-            Math.min(this.app.renderer.height - size / 2, y)
           );
 
           const shape = new Shape(
@@ -278,7 +283,15 @@
         }
 
         animate() {
-          this.shapes.forEach((shape) => shape.update());
+          this.shapes.forEach((shape, index) => {
+            shape.update();
+
+            if (shape.y - shape.size > this.app.renderer.height) {
+              this.shapes.splice(index, 1);
+              shape.destroy();
+            }
+          });
+
           this.updateStats();
         }
 
@@ -312,6 +325,16 @@
           const y = event.clientY - rect.top;
           this.createShape(x, y);
         }
+
+        onCanvasTouch(event) {
+          if (this.isDeleting) return;
+
+          const rect = this.app.view.getBoundingClientRect();
+          const touch = event.touches[0];
+          const x = touch.clientX - rect.left;
+          const y = touch.clientY - rect.top;
+          this.createShape(x, y);
+        }
       }
 
       const fallingShapes = new FallingShapes();
@@ -321,6 +344,14 @@
         .addEventListener("click", (event) =>
           fallingShapes.onCanvasClick(event)
         );
+
+      document
+        .getElementById("canvas")
+        .addEventListener("touchstart", (event) => {
+          if (event.touches.length === 1) {
+            fallingShapes.onCanvasTouch(event);
+          }
+        });
     </script>
   </body>
 </html>
