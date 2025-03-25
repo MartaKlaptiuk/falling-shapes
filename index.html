@@ -1,33 +1,34 @@
 <!DOCTYPE html>
-<html lang="uk">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <title>Falling Shapes</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles.css" />
+    <!-- PIXI.js via CDN -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/7.0.0/pixi.min.js"></script>
   </head>
   <body>
     <h3>Falling Shapes</h3>
-    <div>
+    <div class="info">
       <p>NUMBER OF CURRENT SHAPES: <span id="shapeCount">0</span></p>
       <p>SURFACE AREA OCCUPIED BY SHAPES: <span id="shapeArea">0</span> px²</p>
     </div>
+
+    <!-- Canvas container -->
     <div class="container" id="canvas"></div>
+
+    <!-- Controls -->
     <div class="controls">
       <p>NUMBER OF SHAPES PER SECOND: <span id="shapeRate">1</span></p>
-      <button onclick="fallingShapes.changeShapeRate(-1)">-</button>
-      <button onclick="fallingShapes.changeShapeRate(1)">+</button>
-      <p>GRAVITY VALUE: <span id="gravityValue">0.2</span></p>
-      <button onclick="fallingShapes.changeGravity(-1)">-</button>
-      <button onclick="fallingShapes.changeGravity(1)">+</button>
+      <button id="decreaseRate">-</button>
+      <button id="increaseRate">+</button>
+
+      <p>GRAVITY VALUE: <span id="gravityValue">0.20</span></p>
+      <button id="decreaseGravity">-</button>
+      <button id="increaseGravity">+</button>
     </div>
 
-    <script src="js/shapes.js"></script>
-    <script src="js/fallingShapes.js"></script>
-    <script src="js/utils.js"></script>
-    <script>
-      // let fallingShapes = new FallingShapes();
-      // fallingShapes.initialize();
-    </script>
+    <!-- Main entry point -->
+    <script type="module" src="js/main.js"></script>
   </body>
 </html>
